@@ -22,8 +22,8 @@ namespace bill_payment.ImplementService
             {
                 var data = new User
                 {
-                    CreationDate = DateTime.Now,
-                    DateOfBirth = model.DateOfBirth,
+                    CreationDate = DateTime.UtcNow,
+                    DateOfBirth = DateTime.SpecifyKind(model.DateOfBirth, DateTimeKind.Utc),
                     FullName = model.FullName,
                     Gender = model.Gender,
                     NationalId = model.NationalId,
@@ -41,14 +41,22 @@ namespace bill_payment.ImplementService
                 await _billContext.SaveChangesAsync();
                 Response.Message = "User Added Successfully";
                 Response.StatusCode = 200;
-                Response.data = data;
+                Response.data = new ListUsersOutPut()
+                {
+                    CreationDate = data.CreationDate,
+                    DateOfBirth = data.DateOfBirth,
+                    FullName = data.FullName,
+                    Gender = data.Gender,
+                    NationalId = data.NationalId,
+                    PhoneNumber = data.PhoneNumber,
+                    UserId = data.UserId
+                };
 
             }
             catch (Exception ex)
             {
                 Response.Message = "Error While Creating User";
                 Response.StatusCode = 400;
-                Response.data = new User();
             }
             return Response;
         }
@@ -56,7 +64,7 @@ namespace bill_payment.ImplementService
         public async Task<DeleteUserResponse> DeleteUser(Guid id)
         {
             var Response = new DeleteUserResponse();
-            var data = await _billContext.Users.Where(c=> c.UserId == id).FirstOrDefaultAsync();
+            var data = await _billContext.Users.Where(c => c.UserId == id).FirstOrDefaultAsync();
             if (data == null)
             {
                 Response.StatusCode = 400;
@@ -77,7 +85,6 @@ namespace bill_payment.ImplementService
             if (data == null)
             {
                 Response.StatusCode = 400;
-                Response.data = new User();
                 Response.Message = "There is no User With This Id";
                 return Response;
             }
@@ -104,14 +111,22 @@ namespace bill_payment.ImplementService
                     }
                 }
                 Response.StatusCode = 200;
-                Response.data = data;
+                Response.data = new ListUsersOutPut()
+                {
+                    CreationDate = data.CreationDate,
+                    DateOfBirth = data.DateOfBirth,
+                    FullName = data.FullName,
+                    Gender = data.Gender,
+                    NationalId = data.NationalId,
+                    PhoneNumber = data.PhoneNumber,
+                    UserId = data.UserId
+                };
                 Response.Message = "User Modified Successfully";
                 return Response;
             }
             catch (Exception ex)
             {
                 Response.StatusCode = 400;
-                Response.data = new User();
                 Response.Message = "Error While Modifying User";
                 return Response;
             }
@@ -141,7 +156,7 @@ namespace bill_payment.ImplementService
             var Response = new ListUserResponse();
 
             var data = await _billContext.Users.Where(c => c.PartnerId == id).ToListAsync();
-            if(data.Count == 0)
+            if (data.Count == 0)
             {
                 Response.StatusCode = StatusCode.error.ToString();
                 Response.Message = "There are no Customers with this partner";
@@ -182,10 +197,11 @@ namespace bill_payment.ImplementService
                     Name = customer.FullName
                 };
             }
-            catch (Exception ex) {
+            catch (Exception ex)
+            {
                 Response.StatusCode = StatusCode.error.ToString();
                 Response.Message = "Validation Error";
-            } 
+            }
             return Response;
         }
     }

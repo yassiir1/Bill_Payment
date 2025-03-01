@@ -4,6 +4,6 @@
     {
         public int StatusCode { get; set; }
         public string Message { get; set; }
-        public Domains.User data { get; set; }
+        public ListUsersOutPut data { get; set; }
     }
 }

@@ -13,12 +13,17 @@ namespace bill_payment.BillDbContext
         public DbSet<User> Users { get; set; }
         public DbSet<Partner> Partner { get; set; }
         public DbSet<UserPartners> UserPartners { get; set; }
+        public DbSet<Setting> Setting { get; set; }
+        public DbSet<Banners> Banners { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Admin>()
                 .Property(a => a.AdminId)
                 .HasColumnType("uuid");
+            modelBuilder.Entity<Banners>()
+             .HasOne(a => a.setting).WithMany(x=> x.banners)
+                         .OnDelete(DeleteBehavior.Restrict);
 
         }
     }
