@@ -24,7 +24,7 @@ namespace bill_payment.Controllers
 
             var Response = await _partnerServices.AddPartner(data);
             if (Response.StatusCode == 200)
-                return Ok(Response);
+                return Ok(Response.data);
             else
                 return BadRequest(Response);
         }
@@ -35,9 +35,9 @@ namespace bill_payment.Controllers
 
             var Response = await _partnerServices.EditPartner (id, data);
             if (Response.StatusCode == 200)
-                return Ok(Response);
+                return Ok(Response.data);
             else
-                return BadRequest(Response);
+                return BadRequest(Response.data);
         }
 
         [Authorize]
@@ -45,24 +45,24 @@ namespace bill_payment.Controllers
         public async Task<IActionResult> ListPartners()
         {
             var Response = await _partnerServices.ListPartners();
-            return Ok(Response);
+            return Ok(Response.data);
         }
         [HttpGet("details")]
         public async Task<IActionResult> GetPartnerDetails(Guid Id)
         {
             var Response = await _partnerServices.GetPartnerDetails(Id);
-            return Ok(Response);
+            return Ok(Response.data);
         }
 
         [Authorize]
         [HttpDelete]
-        public async Task<IActionResult> DeleteDelete(Guid id)
+        public async Task<IActionResult> DeletePartner(Guid id)
         {
             var Response = await _partnerServices.DeletePartner(id);
             if (Response.StatusCode == Enums.StatusCode.success.ToString())
-                return Ok(Response);
+                return Ok(Response.Message);
             else
-                return BadRequest(Response);
+                return BadRequest(Response.Message);
         }
     }
 }

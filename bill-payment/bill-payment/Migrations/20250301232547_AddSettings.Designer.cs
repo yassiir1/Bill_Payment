@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bill_payment.BillDbContext;
@@ -11,9 +12,11 @@ using bill_payment.BillDbContext;
 namespace bill_payment.Migrations
 {
     [DbContext(typeof(Bill_PaymentContext))]
-    partial class Bill_PaymentContextModelSnapshot : ModelSnapshot
+    [Migration("20250301232547_AddSettings")]
+    partial class AddSettings
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,81 +79,6 @@ namespace bill_payment.Migrations
                     b.HasIndex("SettingId");
 
                     b.ToTable("Banners");
-                });
-
-            modelBuilder.Entity("bill_payment.Domains.CreditCards", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("cvv")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("holder_name")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("last_4_digit")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("month")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("token_id")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("type")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("year")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("CreditCards");
-                });
-
-            modelBuilder.Entity("bill_payment.Domains.FavouritePayments", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("bill_type")
-                        .HasColumnType("integer");
-
-                    b.Property<bool>("is_bill")
-                        .HasColumnType("boolean");
-
-                    b.Property<double>("last_paid_amount")
-                        .HasColumnType("double precision");
-
-                    b.Property<string>("package_code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("service_code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("service_provider_code")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("user_account")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("FavouritePayments");
                 });
 
             modelBuilder.Entity("bill_payment.Domains.Partner", b =>

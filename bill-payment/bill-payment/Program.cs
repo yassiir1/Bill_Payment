@@ -8,6 +8,9 @@ using Newtonsoft.Json.Linq;
 using System.Security.Claims;
 using bill_payment.InterfacesService;
 using bill_payment.ImplementService;
+using bill_payment.Middlewares;
+using bill_payment.MobileAppServices;
+using bill_payment.ServicesExtensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,11 +21,8 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient(); // Register IHttpClientFactory
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IRolesServices, RolesServices>();
-builder.Services.AddScoped<IPartnerServices, PartnerServices>();
-builder.Services.AddScoped<IUserServices, UserServices>();
-builder.Services.AddScoped<IAdminServices, AdminServices>();
-builder.Services.AddScoped<IAccountService, AccountServices>();;
+
+builder.Services.AddApplicationServices();
 
 
 builder.Services.AddDbContext<Bill_PaymentContext>(options =>
@@ -90,16 +90,12 @@ app.UseCors("AllowAll");
 using (var scope = app.Services.CreateScope())
 {
     var dbContext = scope.ServiceProvider.GetRequiredService<Bill_PaymentContext>();
-    dbContext.Database.Migrate(); // Apply any pending migrations
+    dbContext.Database.Migrate(); 
 }
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-    
-//}
+
 app.UseSwagger();
 app.UseSwaggerUI();
-
+app.UseMiddleware<ResponseMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 

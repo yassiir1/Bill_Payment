@@ -15,6 +15,8 @@ namespace bill_payment.BillDbContext
         public DbSet<UserPartners> UserPartners { get; set; }
         public DbSet<Setting> Setting { get; set; }
         public DbSet<Banners> Banners { get; set; }
+        public DbSet<FavouritePayments> FavouritePayments { get; set; }
+        public DbSet<CreditCards> CreditCards { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
