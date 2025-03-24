@@ -6,6 +6,6 @@ namespace bill_payment.Models.Roles
     {
         public int StatusCode { get; set; }
         public string Message { get; set; }
-        public List<Domains.Roles> Roles { get; set; }
+        public List<Domains.Roles> data { get; set; }
     }
 }

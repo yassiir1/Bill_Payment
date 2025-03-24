@@ -12,8 +12,8 @@ namespace bill_payment.ImplementService
     {
         private readonly Bill_PaymentContext _billContext;
         private readonly IHttpClientFactory _clientFactory;
-        //private string BaseUrl = "http://localhost:8080";
-        private string BaseUrl = "http://127.0.0.1:8280";
+        private string BaseUrl = "http://localhost:8080";
+        //private string BaseUrl = "http://127.0.0.1:8280";
 
 
         public RolesServices(Bill_PaymentContext billContext, IHttpClientFactory clientFactory)
@@ -32,11 +32,7 @@ namespace bill_payment.ImplementService
             try
             {
                 var ExistRole = _billContext.Roles.Where(c => c.RoleName == data.RoleName).FirstOrDefault();
-                if(ExistRole == null)
-                {
-                    await _billContext.Roles.AddAsync(model);
-                    await _billContext.SaveChangesAsync();
-                }
+                
      
                 using (var client = new HttpClient())
                 {
@@ -62,6 +58,11 @@ namespace bill_payment.ImplementService
                         return ReturnModel;
 
                     }
+                    if (ExistRole == null)
+                    {
+                        await _billContext.Roles.AddAsync(model);
+                        await _billContext.SaveChangesAsync();
+                    }
                 }
 
                 ReturnModel.Message = "Roles Inserted Successfully";
@@ -84,13 +85,13 @@ namespace bill_payment.ImplementService
                 var Roles = await _billContext.Roles.ToListAsync();
                 ReturnModel.Message = "Roles Returned Successfully";
                 ReturnModel.StatusCode = 200;
-                ReturnModel.Roles = Roles;
+                ReturnModel.data = Roles;
             }
             catch(Exception ex) 
             {
                 ReturnModel.Message = "Error on Returning Roles List";
                 ReturnModel.StatusCode = 400;
-                ReturnModel.Roles = new List<Roles>();
+                ReturnModel.data = new List<Roles>();
             }
             return ReturnModel;
         }

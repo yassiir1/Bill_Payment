@@ -27,7 +27,7 @@ namespace bill_payment.Controllers
             var Response = await _creditCardsServices.DeleteCreditCard(CARD_ID);
             return Ok(new { Message = Response });
         }
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> ListCreditCards()
         {
             var Response = await _creditCardsServices.ListCreditCards();

@@ -21,6 +21,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient(); // Register IHttpClientFactory
 builder.Services.AddSwaggerGen();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddApplicationServices();
 
@@ -96,6 +97,8 @@ using (var scope = app.Services.CreateScope())
 app.UseSwagger();
 app.UseSwaggerUI();
 app.UseMiddleware<ResponseMiddleware>();
+app.UseMiddleware<UserIdMiddleware>();
+
 app.UseHttpsRedirection();
 app.UseAuthentication();
 

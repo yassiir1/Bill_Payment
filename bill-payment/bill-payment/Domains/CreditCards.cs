@@ -6,6 +6,7 @@ namespace bill_payment.Domains
     {
         [Key]
         public int Id { get; set; }
+        public Guid UserId { get; set; }
         public string token_id { get; set; }
         public int last_4_digit { get; set; }
         public string type { get; set; }

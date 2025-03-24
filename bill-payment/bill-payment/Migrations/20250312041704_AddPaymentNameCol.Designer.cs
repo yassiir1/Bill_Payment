@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bill_payment.BillDbContext;
@@ -11,9 +12,11 @@ using bill_payment.BillDbContext;
 namespace bill_payment.Migrations
 {
     [DbContext(typeof(Bill_PaymentContext))]
-    partial class Bill_PaymentContextModelSnapshot : ModelSnapshot
+    [Migration("20250312041704_AddPaymentNameCol")]
+    partial class AddPaymentNameCol
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,9 +146,6 @@ namespace bill_payment.Migrations
 
                     b.Property<string>("package_code")
                         .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("prereq_service_code")
                         .HasColumnType("text");
 
                     b.Property<string>("service_code")

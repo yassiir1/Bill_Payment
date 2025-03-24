@@ -18,7 +18,6 @@ namespace bill_payment.ImplementService
             new KeyValuePair<string, string>("grant_type", "password"),
             new KeyValuePair<string, string>("client_id", "bill-payment-sdk-service"),
             new KeyValuePair<string, string>("client_secret", "UGz04k1gJ3xRLY7Zts7DYLERTTvP21Di"), // Optional if the client requires it
-            //new KeyValuePair<string, string>("client_secret", "91cipeTikJmcok426J8ue5QkkICJHHLp"), // Optional if the client requires it
             new KeyValuePair<string, string>("username", data.UserName),
             new KeyValuePair<string, string>("password", data.Password)
         });

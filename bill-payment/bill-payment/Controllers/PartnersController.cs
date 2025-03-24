@@ -40,12 +40,12 @@ namespace bill_payment.Controllers
                 return BadRequest(Response.data);
         }
 
-        [Authorize]
+        //[Authorize]
         [HttpGet]
         public async Task<IActionResult> ListPartners()
         {
             var Response = await _partnerServices.ListPartners();
-            return Ok(Response.data);
+            return Ok(Response);
         }
         [HttpGet("details")]
         public async Task<IActionResult> GetPartnerDetails(Guid Id)

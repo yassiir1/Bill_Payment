@@ -28,7 +28,7 @@ namespace bill_payment.Controllers
             var Response = await _favouritePaymentServices.DeleteFavouritePayment(FAVORITE_PAYMENT_ID);
             return Ok(new {Message = Response});
         }
-        [HttpGet()]
+        [HttpGet]
         public async Task<IActionResult> GetFavourites()
         {
             var Response = await _favouritePaymentServices.GetFavouritePayment();

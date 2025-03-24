@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace bill_payment.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/ui-settings")]
     [ApiController]
     public class SettingsController : ControllerBase
     {
@@ -16,7 +16,7 @@ namespace bill_payment.Controllers
         {
             _settingsServices = settingsServices;
         }
-        [HttpPut("UpdateSettings")]
+        [HttpPut]
         public async Task<IActionResult> UpdateSettings( [FromBody] EditSettings data)
         {
             var Response = await _settingsServices.EditSettings( data);
@@ -24,7 +24,7 @@ namespace bill_payment.Controllers
 
         }
 
-        [HttpGet("GetSettings")]
+        [HttpGet]
         public async Task<IActionResult> ListSettings()
         {
             var Response = await _settingsServices.ListSettings();

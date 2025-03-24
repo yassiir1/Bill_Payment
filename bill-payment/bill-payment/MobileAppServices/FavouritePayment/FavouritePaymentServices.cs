@@ -1,6 +1,7 @@
 ﻿using bill_payment.BillDbContext;
 using bill_payment.Domains;
 using bill_payment.Models.FavouritePayment;
+using bill_payment.Models.Users;
 using Microsoft.EntityFrameworkCore;
 using System.Diagnostics.Eventing.Reader;
 using System.Net.Http;
@@ -12,15 +13,29 @@ namespace bill_payment.MobileAppServices.FavouritePayment
     public class FavouritePaymentServices : IFavouritePaymentServices
     {
         private readonly HttpClient _httpClient;
-
         private readonly Bill_PaymentContext _billContext;
-        public FavouritePaymentServices(Bill_PaymentContext billContext, HttpClient httpClient)
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        public FavouritePaymentServices(Bill_PaymentContext billContext, HttpClient httpClient, IHttpContextAccessor httpContextAccessor)
         {
             _billContext = billContext;
             _httpClient = httpClient;
+            _httpContextAccessor = httpContextAccessor;
         }
         public async Task<AddFavouritePaymentResponse> AddFavouritePayment(FavouritePaymentInput input)
         {
+            var exist = await _billContext.FavouritePayments.AnyAsync(c=> c.user_account == input.user_account && c.service_code == input.service_code);
+            if (exist)
+                return new AddFavouritePaymentResponse()
+                {
+                    Message = "You can't add more than one favourite payment to the same user account with the same service code! ",
+                    data = new AddFavouritePaymentOutput()
+                };
+            var userInfo = GetUserInfos();
+            if (userInfo == null || userInfo.UserId == null /*|| userInfo.SessionId == null || userInfo.Skey == null*/)
+                throw new Exception("There is No User Id To Login With");
+            var user = await _billContext.Users.Where(c => c.GiedeaUser_id == userInfo.UserId).FirstOrDefaultAsync();
+            //if (userInfo.SessionId != user.session_id || userInfo.Skey != user.skey)
+            //    throw new Exception("Login TimeOut, Please ReLogin then try again!");
             var data = new FavouritePayments()
             {
                 bill_type = input.bill_type,
@@ -30,6 +45,10 @@ namespace bill_payment.MobileAppServices.FavouritePayment
                 service_code = input.service_code,
                 service_provider_code = input.service_provider_code,
                 user_account = input.user_account,
+                UserId = user.UserId,
+                PaymentName = input.payment_name,
+                prereq_service_code = input.prereq_service_code,
+                
             };
             await _billContext.FavouritePayments.AddAsync(data);
             await _billContext.SaveChangesAsync();
@@ -43,6 +62,12 @@ namespace bill_payment.MobileAppServices.FavouritePayment
 
         public async Task<string> DeleteFavouritePayment(int id)
         {
+            var userInfo = GetUserInfos();
+            if (userInfo == null || userInfo.UserId == null /*|| userInfo.SessionId == null || userInfo.Skey == null*/)
+                throw new Exception("There is No User Id To Login With");
+            var user = await _billContext.Users.Where(c => c.GiedeaUser_id == userInfo.UserId).FirstOrDefaultAsync();
+            //if (userInfo.SessionId != user.session_id || userInfo.Skey != user.skey)
+            //    throw new Exception("Login TimeOut, Please ReLogin then try again!");
             var data = await _billContext.FavouritePayments.FindAsync(id);
             _billContext.FavouritePayments.Remove(data);
             await _billContext.SaveChangesAsync();
@@ -51,7 +76,14 @@ namespace bill_payment.MobileAppServices.FavouritePayment
 
         public async Task<FavouritePaymentResponse> GetFavouritePayment()
         {
-            var data = await _billContext.FavouritePayments.ToListAsync();
+            var userInfo = GetUserInfos();
+            if (userInfo == null || userInfo.UserId == null /*|| userInfo.SessionId == null || userInfo.Skey == null*/)
+                throw new Exception("There is No User Id To Login With");
+            var user = await _billContext.Users.Where(c => c.GiedeaUser_id == userInfo.UserId).FirstOrDefaultAsync();
+            //if(userInfo.SessionId != user.session_id || userInfo.Skey != user.skey)
+            //    throw new Exception("Login TimeOut, Please ReLogin then try again!");
+
+            var data = await _billContext.FavouritePayments.Where(c=> c.UserId == user.UserId).OrderByDescending(c=> c.Id).ToListAsync();
             var tasks = data.Select(async c => await CheckForGetCurrentBillAsync(new FavouritePaymentOutput()
             {
                 favorite_payment_id = c.Id,
@@ -62,6 +94,9 @@ namespace bill_payment.MobileAppServices.FavouritePayment
                 package_code = c.package_code,
                 service_code = c.service_code,
                 service_provider_code = c.service_provider_code,
+                payment_name = c.PaymentName,
+                prereq_service_code = c.prereq_service_code,
+                
             })).ToList();
             var modifiedData = (await Task.WhenAll(tasks)).ToList();
             return new FavouritePaymentResponse()
@@ -72,48 +107,60 @@ namespace bill_payment.MobileAppServices.FavouritePayment
         }
         private async Task<FavouritePaymentOutput> CheckForGetCurrentBillAsync(FavouritePaymentOutput data)
         {
-            if(data.is_bill)
-            {
-                var request = new CurrentBillPayload()
-                {
-                    User_B_Account_Id = data.user_account
-                };
-                string url = "https://test.geidea.net:9090/mfstransactions/ServiceTXN";
+            //if(data.is_bill)
+            //{
+            //    var request = new CurrentBillPayload()
+            //    {
+            //        User_B_Account_Id = data.user_account
+            //    };
+            //    string url = "https://test.geidea.net:9090/mfstransactions/ServiceTXN";
 
-                var jsonContent = JsonSerializer.Serialize(request);
-                var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            //    var jsonContent = JsonSerializer.Serialize(request);
+            //    var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
-                HttpResponseMessage response = await _httpClient.PostAsync(url, content);
+            //    HttpResponseMessage response = await _httpClient.PostAsync(url, content);
 
-                if (response.IsSuccessStatusCode)
-                {
-                    string responseBody = await response.Content.ReadAsStringAsync();
-                    using JsonDocument doc = JsonDocument.Parse(responseBody);
-                    if (doc.RootElement.TryGetProperty("out_parameters", out JsonElement outParams) &&
-                                    outParams.TryGetProperty("GLEPayAmount", out JsonElement glePayAmount))
-                    {
-                        var amount = glePayAmount.GetDecimal();
-                        data.current_bill_amount = (double)(amount);
-                        data.external_ref_number = request.External_Ref_Number;
-                        data.external_txn_id = request.External_Txn_Id;
-                    }
-                }
-                else
-                {
-                    data.current_bill_amount = 0;
-                    data.external_ref_number = "";
-                    data.external_txn_id = "";
-                }
-            }
-            else
-            {
-                data.current_bill_amount = 0;
-                data.external_ref_number = "";
-                data.external_txn_id = "";
+            //    if (response.IsSuccessStatusCode)
+            //    {
+            //        string responseBody = await response.Content.ReadAsStringAsync();
+            //        using JsonDocument doc = JsonDocument.Parse(responseBody);
+            //        if (doc.RootElement.TryGetProperty("out_parameters", out JsonElement outParams) &&
+            //                        outParams.TryGetProperty("GLEPayAmount", out JsonElement glePayAmount))
+            //        {
+            //            var amount = glePayAmount.GetDecimal();
+            //            data.current_bill_amount = (double)(amount);
+            //            data.external_ref_number = request.External_Ref_Number;
+            //            data.external_txn_id = request.External_Txn_Id;
+            //        }
+            //    }
+            //    else
+            //    {
+            //        data.current_bill_amount = 0;
+            //        data.external_ref_number = "";
+            //        data.external_txn_id = "";
+            //    }
+            //}
+            //else
+            //{
+            //    data.current_bill_amount = 0;
+            //    data.external_ref_number = "";
+            //    data.external_txn_id = "";
 
-            }
+            //}
             return data;
 
+        }
+        private UserInfos GetUserInfos()
+        {
+            var userSession = _httpContextAccessor.HttpContext?.Items["UserSession"] as UserInfos;
+
+            if (userSession != null)
+            {
+                var userId = userSession.UserId;
+                var sessionId = userSession.SessionId;
+                var skey = userSession.Skey;
+            }
+            return userSession;
         }
     }
 }

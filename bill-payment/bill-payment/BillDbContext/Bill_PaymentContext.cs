@@ -24,8 +24,17 @@ namespace bill_payment.BillDbContext
                 .Property(a => a.AdminId)
                 .HasColumnType("uuid");
             modelBuilder.Entity<Banners>()
-             .HasOne(a => a.setting).WithMany(x=> x.banners)
+             .HasOne(a => a.setting).WithMany(x => x.banners)
                          .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FavouritePayments>()
+            .HasIndex(us => new { us.user_account, us.service_code })
+            .IsUnique();
+
+
+            modelBuilder.Entity<CreditCards>()
+            .HasIndex(ut => ut.token_id)
+            .IsUnique();
 
         }
     }

@@ -18,6 +18,7 @@ namespace bill_payment.ServicesExtensions
             services.AddScoped<ISettingsServices, SettingsServices>();
             services.AddScoped<IFavouritePaymentServices, FavouritePaymentServices>();
             services.AddScoped<ICreditCardsServices, CreditCardServices>();
+            services.AddScoped<IUserLogin, UserLogin>();
 
             return services;
         }
