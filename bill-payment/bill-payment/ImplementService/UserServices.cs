@@ -186,7 +186,7 @@ namespace bill_payment.ImplementService
                 data = data.Where(c => c.Age <= filter.maxAge.Value);
 
             if (!string.IsNullOrEmpty(filter.name))
-                data = data.Where(c => EF.Functions.Like(c.FullName, $"{filter.name}%"));
+                data = data.Where(c => EF.Functions.Like(c.FullName.ToLower(), $"{filter.name.ToLower()}%"));
 
             var page = filter.page > 0 ? filter.page : 1;
             var pageSize = filter.pageSize > 0 ? filter.pageSize : 10;
@@ -194,6 +194,8 @@ namespace bill_payment.ImplementService
 
             Response.StatusCode = StatusCode.success.ToString();
             Response.Message = "Data Returned successfully";
+            Response.page = page;
+            Response.pageSize = pageSize;
             Response.data = await data.Select(c => new ListUsersOutPut()
             {
                 NationalId = c.NationalId,

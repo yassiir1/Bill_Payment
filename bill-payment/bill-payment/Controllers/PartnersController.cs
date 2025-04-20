@@ -42,11 +42,13 @@ namespace bill_payment.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> ListPartners()
+        public async Task<IActionResult> ListPartners([FromQuery] PartnerFilter filter)
         {
-            var Response = await _partnerServices.ListPartners();
+            var Response = await _partnerServices.ListPartners(filter);
             return Ok(Response);
         }
+
+        [Authorize]
         [HttpGet("details")]
         public async Task<IActionResult> GetPartnerDetails(Guid Id)
         {

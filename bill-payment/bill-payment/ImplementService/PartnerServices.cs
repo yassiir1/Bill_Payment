@@ -4,6 +4,8 @@ using bill_payment.Enums;
 using bill_payment.InterfacesService;
 using bill_payment.Models.Partners;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace bill_payment.ImplementService
 {
@@ -139,12 +141,30 @@ namespace bill_payment.ImplementService
             return Response;
         }
 
-        public async Task<PartnersListResponse> ListPartners()
+        public async Task<PartnersListResponse> ListPartners(PartnerFilter filter)
         {
             var Response = new PartnersListResponse();
             var Partners =  _billContext.Partner.AsQueryable();
+            if (filter.status != null)
+                Partners = Partners.Where(c => filter.status == filter.status);
+            if (filter.creationDateFrom != null)
+                Partners = Partners.Where(c => c.CreationDate >= filter.creationDateFrom);
+            if(filter.creationDateTo != null)
+                Partners = Partners.Where(c => c.CreationDate <= filter.creationDateTo);
+
+
+            if (!string.IsNullOrEmpty(filter.name))
+                Partners = Partners.Where(c => EF.Functions.Like(c.Name.ToLower(), $"{filter.name.ToLower()}%"));
+
+            var page = filter.page > 0 ? filter.page : 1;
+            var pageSize = filter.pageSize > 0 ? filter.pageSize : 10;
+            Partners = Partners.Skip((page - 1) * pageSize).Take(pageSize);
+
+
             Response.StatusCode = StatusCode.success.ToString();
             Response.Message = "Data Returned Successfully";
+            Response.page = page;
+            Response.pageSize = pageSize;
             Response.data = await Partners.Select(c=> new PartnerOutPut
             {
                 Id=c.Id,

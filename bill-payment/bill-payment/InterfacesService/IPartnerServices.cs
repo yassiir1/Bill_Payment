@@ -7,7 +7,7 @@ namespace bill_payment.InterfacesService
     {
         Task<AddPartnerResponse> AddPartner(PartnerInput data);
         Task<AddPartnerResponse> EditPartner(Guid id,PartnerInput data);
-        Task<PartnersListResponse> ListPartners();
+        Task<PartnersListResponse> ListPartners(PartnerFilter filter);
         Task<DeletePartnerResponse> DeletePartner(Guid id);
         Task<PartnerDetailsResponse> GetPartnerDetails(Guid id);
 
