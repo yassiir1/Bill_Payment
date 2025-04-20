@@ -72,15 +72,7 @@ namespace bill_payment.Controllers
             else
                 return BadRequest(Response);
         }
-        //[HttpGet("PartnerUsers")]
-        //public async Task<IActionResult> GetUserByPartnerId(Guid Id)
-        //{
-        //    var Response = await userServices.GetUserByPartnerId(Id);
-        //    if (Response.StatusCode == Enums.StatusCode.success.ToString())
-        //        return Ok(Response);
-        //    else
-        //        return BadRequest(Response);
-        //}
+       
         [Authorize]
         [HttpGet("details")]
         public async Task<IActionResult> GetUserDetails(Guid Id)
