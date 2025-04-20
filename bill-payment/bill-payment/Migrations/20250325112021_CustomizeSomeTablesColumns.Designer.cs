@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using bill_payment.BillDbContext;
@@ -11,9 +12,11 @@ using bill_payment.BillDbContext;
 namespace bill_payment.Migrations
 {
     [DbContext(typeof(Bill_PaymentContext))]
-    partial class Bill_PaymentContextModelSnapshot : ModelSnapshot
+    [Migration("20250325112021_CustomizeSomeTablesColumns")]
+    partial class CustomizeSomeTablesColumns
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,8 +168,6 @@ namespace bill_payment.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UserId");
-
                     b.HasIndex("user_account", "service_code")
                         .IsUnique();
 
@@ -192,14 +193,7 @@ namespace bill_payment.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<string>("SPocEmail")
-                        .IsRequired()
-                        .HasColumnType("text");
-
                     b.Property<int>("SessionTimeInMins")
-                        .HasColumnType("integer");
-
-                    b.Property<int>("customerRegisterationPolicy")
                         .HasColumnType("integer");
 
                     b.Property<int>("status")
@@ -295,9 +289,6 @@ namespace bill_payment.Migrations
                     b.Property<string>("skey")
                         .HasColumnType("text");
 
-                    b.Property<int>("status")
-                        .HasColumnType("integer");
-
                     b.HasKey("UserId");
 
                     b.HasIndex("PartnerId");
@@ -337,15 +328,6 @@ namespace bill_payment.Migrations
                     b.Navigation("setting");
                 });
 
-            modelBuilder.Entity("bill_payment.Domains.FavouritePayments", b =>
-                {
-                    b.HasOne("bill_payment.Domains.User", null)
-                        .WithMany("FavouritePayments")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("bill_payment.Domains.User", b =>
                 {
                     b.HasOne("bill_payment.Domains.Partner", "Partner")
@@ -379,11 +361,6 @@ namespace bill_payment.Migrations
             modelBuilder.Entity("bill_payment.Domains.Setting", b =>
                 {
                     b.Navigation("banners");
-                });
-
-            modelBuilder.Entity("bill_payment.Domains.User", b =>
-                {
-                    b.Navigation("FavouritePayments");
                 });
 #pragma warning restore 612, 618
         }

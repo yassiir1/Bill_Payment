@@ -8,10 +8,10 @@ namespace bill_payment.InterfacesService
     {
         Task<AddUserResponse> AddUser(UserInput model);
         Task<AddUserResponse> EditUser(Guid id, UserInput model);
-        Task<ListUserResponse> GetAllAsync();
-        Task<ListUserResponse> GetUserByPartnerId(Guid id);
+        Task<ListUserResponse> GetAllAsync(UserFilter filter);
+        //Task<ListUserResponse> GetUserByPartnerId(Guid id);
         Task<UserDetailsResponse> GetUserDetails(Guid id);
         Task<DeleteUserResponse> DeleteUser(Guid id);
-
+        Task<byte[]> ExportUsers(List<ListUsersOutPut> data);
     }
 }

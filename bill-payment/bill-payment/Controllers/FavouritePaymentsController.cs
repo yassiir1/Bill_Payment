@@ -16,6 +16,7 @@ namespace bill_payment.Controllers
         {
             _favouritePaymentServices = favouritePaymentServices;
         }
+
         [HttpPost("add")]
         public async Task<IActionResult> AddFavourite([FromBody] FavouritePaymentInput data)
         {

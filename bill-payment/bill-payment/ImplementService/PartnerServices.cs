@@ -22,6 +22,13 @@ namespace bill_payment.ImplementService
                 var Partner = new Partner
                 {
                     Name = data.Name,
+                    CreationDate = DateTime.Now.ToUniversalTime(),
+                    IsGedieaPayEnabled = data.IsGedieaPayEnabled,
+                    SPocEmail = data.SPocEmail,
+                    IsPartnerWalletEnabled = data.IsPartnerWalletEnabled,
+                    SessionTimeInMins = data.SessionTimeInMins,
+                    status = data.status
+                    
                 };
                 await _billContext.Partner.AddAsync(Partner);
                 await _billContext.SaveChangesAsync();
@@ -71,6 +78,12 @@ namespace bill_payment.ImplementService
                     return Response;
                 }
                 Partner.Name = data.Name;
+                Partner.status = data.status;
+                Partner.IsPartnerWalletEnabled = data.IsPartnerWalletEnabled;
+                Partner.IsGedieaPayEnabled = data.IsGedieaPayEnabled; 
+                Partner.SessionTimeInMins = data.SessionTimeInMins;
+                Partner.SPocEmail = data.SPocEmail;
+
                 await _billContext.SaveChangesAsync();
                 Response.StatusCode = 200;
                 Response.data = new PartnerOutPut
@@ -106,6 +119,13 @@ namespace bill_payment.ImplementService
                 {
                     Id = partner.Id,
                     Name = partner.Name,
+                    CreationDate = partner.CreationDate,
+                    IsGedieaPayEnabled = partner.IsGedieaPayEnabled,
+                    IsPartnerWalletEnabled = partner.IsPartnerWalletEnabled,
+                    SessionTimeInMins = partner.SessionTimeInMins,
+                    status = partner.status.ToString(),
+                    SPocEmail = partner.SPocEmail,
+                    customerRegisterationPolicy = partner.customerRegisterationPolicy.ToString()
                 };
                 Response.StatusCode = StatusCode.success.ToString();
                 Response.Message = "Data Returned Successfully";
@@ -122,14 +142,21 @@ namespace bill_payment.ImplementService
         public async Task<PartnersListResponse> ListPartners()
         {
             var Response = new PartnersListResponse();
-            var Partners = await _billContext.Partner.ToListAsync();
+            var Partners =  _billContext.Partner.AsQueryable();
             Response.StatusCode = StatusCode.success.ToString();
             Response.Message = "Data Returned Successfully";
-            Response.data = Partners.Select(c=> new PartnerOutPut
+            Response.data = await Partners.Select(c=> new PartnerOutPut
             {
                 Id=c.Id,
                 Name=c.Name,
-            }).ToList();
+                CreationDate = c.CreationDate,
+                IsGedieaPayEnabled = c.IsGedieaPayEnabled,
+                IsPartnerWalletEnabled = c.IsPartnerWalletEnabled,
+                SessionTimeInMins = c.SessionTimeInMins,
+                status = c.status.ToString(),
+                SPocEmail = c.SPocEmail,
+                customerRegisterationPolicy = c.customerRegisterationPolicy.ToString()
+            }).ToListAsync();
             return Response;
         }
     }

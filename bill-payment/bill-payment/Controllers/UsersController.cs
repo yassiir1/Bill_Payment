@@ -1,4 +1,5 @@
-﻿using bill_payment.ImplementService;
+﻿using Azure;
+using bill_payment.ImplementService;
 using bill_payment.InterfacesService;
 using bill_payment.Models.Admin;
 using bill_payment.Models.Users;
@@ -44,10 +45,21 @@ namespace bill_payment.Controllers
 
         [Authorize]
         [HttpGet]
-        public async Task<IActionResult> ListUsers()
+        public async Task<IActionResult> ListUsers([FromQuery] UserFilter filter)
         {
-            var Response = await userServices.GetAllAsync();
+            var Response = await userServices.GetAllAsync(filter);
             return Ok(Response);
+        }
+
+        [Authorize]
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportUsers([FromQuery] UserFilter filter)
+        {
+            var Response = await userServices.GetAllAsync(filter);
+
+            var fileContent = await userServices.ExportUsers(Response.data);
+            var fileName = $"Customers - {DateTime.UtcNow.ToString("yyyy-MM-dd")}";
+            return File(fileContent, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", fileName);
         }
 
         [Authorize]
@@ -60,15 +72,16 @@ namespace bill_payment.Controllers
             else
                 return BadRequest(Response);
         }
-        [HttpGet("PartnerUsers")]
-        public async Task<IActionResult> GetUserByPartnerId(Guid Id)
-        {
-            var Response = await userServices.GetUserByPartnerId(Id);
-            if (Response.StatusCode == Enums.StatusCode.success.ToString())
-                return Ok(Response);
-            else
-                return BadRequest(Response);
-        }
+        //[HttpGet("PartnerUsers")]
+        //public async Task<IActionResult> GetUserByPartnerId(Guid Id)
+        //{
+        //    var Response = await userServices.GetUserByPartnerId(Id);
+        //    if (Response.StatusCode == Enums.StatusCode.success.ToString())
+        //        return Ok(Response);
+        //    else
+        //        return BadRequest(Response);
+        //}
+        [Authorize]
         [HttpGet("details")]
         public async Task<IActionResult> GetUserDetails(Guid Id)
         {

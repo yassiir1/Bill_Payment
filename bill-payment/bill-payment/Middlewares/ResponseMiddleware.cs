@@ -12,6 +12,11 @@ namespace bill_payment.Middlewares
         }
         public async Task Invoke(HttpContext context)
         {
+            if (context.Request.Path.StartsWithSegments("/api/users/export"))
+            {
+                await _next(context);
+                return;
+            }
             var originalBodyStream = context.Response.Body;
             using (var responseBody = new MemoryStream())
             {

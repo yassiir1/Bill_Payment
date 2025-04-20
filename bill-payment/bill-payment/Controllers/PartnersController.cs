@@ -40,7 +40,7 @@ namespace bill_payment.Controllers
                 return BadRequest(Response.data);
         }
 
-        //[Authorize]
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> ListPartners()
         {
@@ -51,7 +51,7 @@ namespace bill_payment.Controllers
         public async Task<IActionResult> GetPartnerDetails(Guid Id)
         {
             var Response = await _partnerServices.GetPartnerDetails(Id);
-            return Ok(Response.data);
+            return Ok(Response);
         }
 
         [Authorize]

@@ -7,7 +7,8 @@
         public string NationalId { get; set; }
         public DateTime DateOfBirth { get; set; }
         public string Gender { get; set; }
-        public Guid? PartnerId { get; set; }
+        public string Email { get; set; }
+        public Guid PartnerId { get; set; }
 
         public DateTime CreationDate { get; set; } = DateTime.Now;
     }
