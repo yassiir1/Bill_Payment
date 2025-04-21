@@ -8,7 +8,8 @@ namespace bill_payment.Models.Users
         public List<Guid?> partnersIds { get; set; } = new();
         public int? minAge { get; set; }
         public int? maxAge { get; set; }
-        public DateTime? creationDate { get; set; }
+        public DateTime? creationDateFrom { get; set; }
+        public DateTime? creationDateTo { get; set; }
         public string? gender { get; set; }
         public List<CustomerStatus?> statuses { get; set; } = new();
        
