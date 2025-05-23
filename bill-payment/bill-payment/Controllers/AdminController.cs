@@ -35,6 +35,38 @@ namespace bill_payment.Controllers
             else
                 return BadRequest(Response);
         }
+
+        [Authorize(Roles = "ROLE_ADMIN")]
+        [HttpPut("{id}")]
+        public async Task<IActionResult> EditAdmin(Guid id,[FromBody] AdminEditInput data)
+        {
+            var user = HttpContext.User;
+            var roles = user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            var TokenHeader = Request.Headers.TryGetValue("Authorization", out var authorizationHeader);
+            var Token = authorizationHeader.ToString().Replace("Bearer ", string.Empty);
+
+            var Response = await adminService.EditAdmin(id,data, Token);
+            if (Response.StatusCode == 200)
+                return Ok(Response);
+            else
+                return BadRequest(Response);
+        }
+        [Authorize(Roles = "ROLE_ADMIN")]
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteAdmin(Guid id)
+        {
+            var user = HttpContext.User;
+            var roles = user.Claims.Where(c => c.Type == ClaimTypes.Role).Select(c => c.Value).ToList();
+            var TokenHeader = Request.Headers.TryGetValue("Authorization", out var authorizationHeader);
+            var Token = authorizationHeader.ToString().Replace("Bearer ", string.Empty);
+
+            var Response = await adminService.DeleteAdmin(id,Token);
+            if (Response.StatusCode == 200)
+                return Ok(Response);
+            else
+                return BadRequest(Response);
+        }
+
         [Authorize(Roles = "ROLE_ADMIN")]
         [HttpGet]
         public async Task<IActionResult> GetAllAdmins()
@@ -44,6 +76,18 @@ namespace bill_payment.Controllers
                 return Ok(Response);
             else
                 return BadRequest(Response); ;
+        }
+
+        [Authorize(Roles = "ROLE_ADMIN")]
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetAdminDetail(Guid id)
+        {
+           
+            var Response = await adminService.GetAdminDetails(id);
+            if (Response?.StatusCode == 200)
+                return Ok(Response);
+            else
+                return BadRequest(Response);
         }
     }
 }

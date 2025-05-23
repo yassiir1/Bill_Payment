@@ -6,6 +6,7 @@ using bill_payment.InterfacesService;
 using bill_payment.Models;
 using bill_payment.Models.Admin;
 using bill_payment.Models.Roles;
+using bill_payment.Models.Users;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
@@ -156,6 +157,103 @@ namespace bill_payment.ImplementService
                 UserName= c.UserName
             }).ToList();
             return Response;
+        }
+
+        public async Task<AddAdminResponse> EditAdmin(Guid adminId, AdminEditInput data, string token)
+        {
+            var response = new AddAdminResponse();
+            var admin = await _billContext.Admins.FindAsync(adminId);
+
+            if (admin == null)
+            {
+                response.StatusCode = 404;
+                response.Message = "Admin not found";
+                return response;
+            }
+
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var updateUserPayload = new
+            {
+                email = data.Email,
+                firstName = data.FirstName,
+                lastName = data.LastName,
+                username = data.UserName,
+                attributes = new { updatedBy = "system" } // optional
+            };
+
+            var updateResponse = await _client.PutAsJsonAsync(
+                $"{BaseUrl}/auth/admin/realms/bill-payment-sdk/users/{admin.KeyCloakId}",
+                updateUserPayload
+            );
+
+            if (!updateResponse.IsSuccessStatusCode)
+            {
+                response.StatusCode = 400;
+                response.Message = "Failed to update user in Keycloak";
+                return response;
+            }
+
+            admin.Email = data.Email;
+            admin.FirstName = data.FirstName;
+            admin.LastName = data.LastName;
+            await _billContext.SaveChangesAsync();
+
+            response.StatusCode = 200;
+            response.Message = "Admin updated successfully";
+            return response;
+        }
+
+        public async Task<DeleteUserResponse> DeleteAdmin(Guid adminId, string token)
+        {
+            var response = new DeleteUserResponse();
+            var admin = await _billContext.Admins.FindAsync(adminId);
+
+            if (admin == null)
+            {
+                response.StatusCode = 404;
+                response.Message = "Admin not found";
+                return response;
+            }
+
+            _client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+
+            var deleteResponse = await _client.DeleteAsync(
+                $"{BaseUrl}/auth/admin/realms/bill-payment-sdk/users/{admin.KeyCloakId}"
+            );
+
+            if (!deleteResponse.IsSuccessStatusCode)
+            {
+                response.StatusCode = 400;
+                response.Message = "Failed to delete user from Keycloak";
+                return response;
+            }
+
+            _billContext.Admins.Remove(admin);
+            await _billContext.SaveChangesAsync();
+
+            response.StatusCode = 200;
+            response.Message = "Admin deleted successfully";
+            return response;
+        }
+
+        public async Task<AdminDetailOutPut?> GetAdminDetails(Guid adminId)
+        {
+            var response = new AdminDetailOutPut();
+
+            var admin = await _billContext.Admins.FindAsync(adminId);
+            if (admin == null) return null;
+            response.StatusCode = 200;
+            response.Message = "Admin deleted successfully";
+            response.data = new AdminDto
+            {
+                Id = admin.AdminId,
+                Email = admin.Email,
+                FirstName = admin.FirstName,
+                LastName = admin.LastName,
+                UserName = admin.UserName
+            };
+            return response; 
         }
     }
 }

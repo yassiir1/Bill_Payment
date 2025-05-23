@@ -1,13 +1,9 @@
 ﻿namespace bill_payment.Models.Admin
 {
-    public class AdminOutPut
+    public class AdminDetailOutPut
     {
         public int StatusCode { get; set; }
         public string Message { get; set; }
-        public List<AdminDto> data { get; set; }
-        public PaginationClass pagination { get; set; }
-
-
+        public AdminDto data { get; set; }
     }
 }
-    
