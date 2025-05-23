@@ -49,7 +49,7 @@ namespace bill_payment.ImplementService
 
             if (!createUserResponse.IsSuccessStatusCode)
             {
-                if(createUserResponse.ReasonPhrase == "Conflict")
+                if(createUserResponse.ReasonPhrase ==  "Conflict")
                 {
                     Response.StatusCode = 400;
                     Response.Message = "Error while Creating Admin - This Username is already exist";
@@ -59,16 +59,7 @@ namespace bill_payment.ImplementService
                 Response.Message = "Error while adding admin";
                 return Response;
             }
-            var AdminInput = new Admin()
-            {
-                Email = data.Email,
-                FirstName = data.FirstName,
-                LastName = data.LastName,
-                UserName = data.UserName,
-                Password = data.Password
-            };
-            await _billContext.Admins.AddAsync(AdminInput);
-            await _billContext.SaveChangesAsync();
+    
             var usersResponse = await _client.GetAsync($"{BaseUrl}/auth/admin/realms/bill-payment-sdk/users?username={data.UserName}");
             var users = await usersResponse.Content.ReadFromJsonAsync<List<UserRepresentation>>();
             var userId = users?.FirstOrDefault()?.Id;
@@ -79,6 +70,19 @@ namespace bill_payment.ImplementService
                 Response.Message = "Error while adding admin";
                 return Response;
             }
+            var AdminInput = new Admin()
+            {
+                AdminId = Guid.NewGuid(),
+                Email = data.Email,
+                FirstName = data.FirstName,
+                LastName = data.LastName,
+                UserName = data.UserName,
+                Password = data.Password,
+                KeyCloakId = Guid.Parse(userId)
+            };
+            await _billContext.Admins.AddAsync(AdminInput);
+            await _billContext.SaveChangesAsync();
+
             var clientResponse = await _client.GetAsync($"{BaseUrl}/auth/admin/realms/bill-payment-sdk/clients?clientId=bill-payment-sdk-service");
             var AdminclientResponse = await _client.GetAsync($"{BaseUrl}/auth/admin/realms/bill-payment-sdk/clients?clientId=realm-management");
 

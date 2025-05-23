@@ -6,6 +6,7 @@ namespace bill_payment.Domains
     {
         [Key]
         public Guid AdminId { get; set; }
+        public Guid KeyCloakId { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public string UserName { get; set; }

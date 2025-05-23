@@ -148,16 +148,16 @@ namespace bill_payment.ImplementService
             if (filter.status != null)
                 Partners = Partners.Where(c => filter.status == filter.status);
             if (filter.creationDateFrom != null)
-                Partners = Partners.Where(c => c.CreationDate >= filter.creationDateFrom);
+                Partners = Partners.Where(c => c.CreationDate >= filter.creationDateFrom.Value);
             if(filter.creationDateTo != null)
-                Partners = Partners.Where(c => c.CreationDate <= filter.creationDateTo);
-
+                Partners = Partners.Where(c => c.CreationDate <= filter.creationDateTo.Value);
 
             if (!string.IsNullOrEmpty(filter.name))
                 Partners = Partners.Where(c => EF.Functions.Like(c.Name.ToLower(), $"{filter.name.ToLower()}%"));
 
             var page = filter.page > 0 ? filter.page : 1;
             var pageSize = filter.pageSize > 0 ? filter.pageSize : 10;
+            Response.totalRecords = Partners.Count();
             Partners = Partners.Skip((page - 1) * pageSize).Take(pageSize);
 
 

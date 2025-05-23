@@ -176,8 +176,11 @@ namespace bill_payment.ImplementService
             if (!string.IsNullOrEmpty(filter.gender))
                 data = data.Where(c => c.Gender == filter.gender);
 
-            if(filter.creationDate != null)
-                data = data.Where(c=> c.CreationDate == filter.creationDate.Value.ToUniversalTime());
+            if(filter.creationDateFrom != null)
+                data = data.Where(c=> c.CreationDate >= filter.creationDateFrom.Value.ToUniversalTime());
+
+            if (filter.creationDateTo != null)
+                data = data.Where(c => c.CreationDate <= filter.creationDateTo.Value.ToUniversalTime());
 
             if (filter.minAge.HasValue)
                 data = data.Where(c => c.Age >= filter.minAge.Value);
@@ -187,6 +190,7 @@ namespace bill_payment.ImplementService
 
             if (!string.IsNullOrEmpty(filter.name))
                 data = data.Where(c => EF.Functions.Like(c.FullName.ToLower(), $"{filter.name.ToLower()}%"));
+            Response.totalRecords = data.Count();
 
             var page = filter.page > 0 ? filter.page : 1;
             var pageSize = filter.pageSize > 0 ? filter.pageSize : 10;
