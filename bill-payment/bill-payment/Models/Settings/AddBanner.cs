@@ -2,7 +2,7 @@
 {
     public class AddBanner
     {
-        public string image { get; set; }
+        public IFormFile image { get; set; }
         public string? path { get; set; }
     }
 }

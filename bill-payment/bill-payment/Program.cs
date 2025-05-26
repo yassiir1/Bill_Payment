@@ -96,9 +96,9 @@ using (var scope = app.Services.CreateScope())
 
 app.UseSwagger();
 app.UseSwaggerUI();
-app.UseMiddleware<ResponseMiddleware>();
+//app.UseMiddleware<ResponseMiddleware>();
 app.UseMiddleware<UserIdMiddleware>();
-
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseAuthentication();
 

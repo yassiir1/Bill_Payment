@@ -2,6 +2,7 @@
 using bill_payment.Domains;
 using bill_payment.Enums;
 using bill_payment.InterfacesService;
+using bill_payment.Models;
 using bill_payment.Models.Partners;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Identity.Client;
@@ -155,16 +156,19 @@ namespace bill_payment.ImplementService
             if (!string.IsNullOrEmpty(filter.name))
                 Partners = Partners.Where(c => EF.Functions.Like(c.Name.ToLower(), $"{filter.name.ToLower()}%"));
 
-            var page = filter.page > 0 ? filter.page : 1;
-            var pageSize = filter.pageSize > 0 ? filter.pageSize : 10;
-            Response.totalRecords = Partners.Count();
-            Partners = Partners.Skip((page - 1) * pageSize).Take(pageSize);
+            Response.pagination = new PaginationClass()
+            {
+                total_records = Partners.Count(),
+                total_pages = (int)Math.Ceiling((double)Partners.Count() / filter.pageSize),
+                page = filter.page,
+                pageSize = filter.pageSize
+            };
+            Partners = Partners.Skip((filter.page - 1) * filter.pageSize).Take(filter.pageSize);
 
 
             Response.StatusCode = StatusCode.success.ToString();
             Response.Message = "Data Returned Successfully";
-            Response.page = page;
-            Response.pageSize = pageSize;
+       
             Response.data = await Partners.Select(c=> new PartnerOutPut
             {
                 Id=c.Id,

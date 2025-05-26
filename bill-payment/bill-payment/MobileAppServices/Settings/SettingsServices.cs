@@ -18,21 +18,44 @@ namespace bill_payment.MobileAppServices.Settings
         public async Task<AddBannerResponse> AddBanner(AddBanner data)
         {
             var settings = await _billContext.Setting.FirstOrDefaultAsync();
+            if (data.image == null || data.image.Length == 0)
+            {
+                return new AddBannerResponse
+                {
+                    Message = "Invalid image file"
+                };
+            }
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "Uploads", "Banners");
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+            var uniqueFileName = Guid.NewGuid().ToString() + Path.GetExtension(data.image.FileName);
+            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await data.image.CopyToAsync(stream);
+            }
+            var relativePath = $"/Uploads/Banners/{uniqueFileName}";
+            var baseUrl = "http://34.60.128.179:8082";
+
             var input = new Banners()
             {
-                image = data.image,
+                image = relativePath,
                 path = data.path,
                 SettingId = settings.Id
             };
             await _billContext.Banners.AddAsync(input);
             await _billContext.SaveChangesAsync();
+            var fullImageUrl = $"{baseUrl}{relativePath}";
+
             return new AddBannerResponse()
             {
                 Message = "Banners Added Successfully",
                 data = new BannersOutPut()
                 {
                     Id = input.Id,
-                    image = input.image,
+                    image = fullImageUrl,
                     path = input.path,
                 }
             };

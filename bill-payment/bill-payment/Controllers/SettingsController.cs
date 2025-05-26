@@ -37,7 +37,7 @@ namespace bill_payment.Controllers
             return Ok(Response);
         }
         [HttpPost("AddBanner")]
-        public async Task<IActionResult> AddBanner(AddBanner data)
+        public async Task<IActionResult> AddBanner([FromForm] AddBanner data)
         {
             var Response = await _settingsServices.AddBanner(data);
             return Ok(Response);

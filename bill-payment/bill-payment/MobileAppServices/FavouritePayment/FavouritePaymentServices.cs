@@ -1,5 +1,6 @@
 ﻿using bill_payment.BillDbContext;
 using bill_payment.Domains;
+using bill_payment.Models;
 using bill_payment.Models.FavouritePayment;
 using bill_payment.Models.Users;
 using Microsoft.EntityFrameworkCore;
@@ -74,16 +75,24 @@ namespace bill_payment.MobileAppServices.FavouritePayment
             return "Favourite Payment Successfully Deleted!";
         }
 
-        public async Task<FavouritePaymentResponse> GetFavouritePayment()
+        public async Task<FavouritePaymentResponse> GetFavouritePayment(PaginatoinClass filter)
         {
+            var Response = new FavouritePaymentResponse();
             var userInfo = GetUserInfos();
             if (userInfo == null || userInfo.UserId == null /*|| userInfo.SessionId == null || userInfo.Skey == null*/)
                 throw new Exception("There is No User Id To Login With");
             var user = await _billContext.Users.Where(c => c.GiedeaUser_id == userInfo.UserId).FirstOrDefaultAsync();
-            //if(userInfo.SessionId != user.session_id || userInfo.Skey != user.skey)
-            //    throw new Exception("Login TimeOut, Please ReLogin then try again!");
+      
 
             var data = await _billContext.FavouritePayments.Where(c=> c.UserId == user.UserId).OrderByDescending(c=> c.Id).ToListAsync();
+            Response.pagination = new PaginationClass()
+            {
+                total_records = data.Count,
+                total_pages = (int)Math.Ceiling((double)data.Count / filter.pageSize),
+                page = filter.page,
+                pageSize = filter.pageSize
+            };
+            data = data.Skip((filter.page - 1) * filter.pageSize).Take(filter.pageSize).ToList();
             var tasks = data.Select(async c => await CheckForGetCurrentBillAsync(new FavouritePaymentOutput()
             {
                 favorite_payment_id = c.Id,
@@ -99,11 +108,9 @@ namespace bill_payment.MobileAppServices.FavouritePayment
                 
             })).ToList();
             var modifiedData = (await Task.WhenAll(tasks)).ToList();
-            return new FavouritePaymentResponse()
-            {
-                Message = data.Count() == 0 ? "You Don't have favourite payments yet!" : "Favourite Payments Successfully Loaded!",
-                data = modifiedData
-            };
+            Response.Message = data.Count() == 0 ? "You Don't have favourite payments yet!" : "Favourite Payments Successfully Loaded!";
+            Response.data = modifiedData;
+            return Response;
         }
         private async Task<FavouritePaymentOutput> CheckForGetCurrentBillAsync(FavouritePaymentOutput data)
         {

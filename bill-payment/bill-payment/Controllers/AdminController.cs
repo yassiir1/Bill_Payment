@@ -69,9 +69,9 @@ namespace bill_payment.Controllers
 
         [Authorize(Roles = "ROLE_ADMIN")]
         [HttpGet]
-        public async Task<IActionResult> GetAllAdmins()
+        public async Task<IActionResult> GetAllAdmins([FromQuery] PaginatoinClass filter)
         {
-            var Response = await adminService.GetAllAdmins();
+            var Response = await adminService.GetAllAdmins(filter);
             if (Response.StatusCode == 200)
                 return Ok(Response);
             else

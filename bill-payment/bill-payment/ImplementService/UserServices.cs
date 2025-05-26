@@ -2,6 +2,7 @@
 using bill_payment.Domains;
 using bill_payment.Enums;
 using bill_payment.InterfacesService;
+using bill_payment.Models;
 using bill_payment.Models.Partners;
 using bill_payment.Models.Users;
 using Microsoft.EntityFrameworkCore;
@@ -190,16 +191,20 @@ namespace bill_payment.ImplementService
 
             if (!string.IsNullOrEmpty(filter.name))
                 data = data.Where(c => EF.Functions.Like(c.FullName.ToLower(), $"{filter.name.ToLower()}%"));
-            Response.totalRecords = data.Count();
 
-            var page = filter.page > 0 ? filter.page : 1;
-            var pageSize = filter.pageSize > 0 ? filter.pageSize : 10;
-            data = data.Skip((page - 1) * pageSize).Take(pageSize);
+
+            Response.pagination = new PaginationClass()
+            {
+                total_records = data.Count(),
+                total_pages = (int)Math.Ceiling((double)data.Count() / filter.pageSize),
+                page = filter.page,
+                pageSize = filter.pageSize
+            };
+            data = data.Skip((filter.page - 1) * filter.pageSize).Take(filter.pageSize);
 
             Response.StatusCode = StatusCode.success.ToString();
             Response.Message = "Data Returned successfully";
-            Response.page = page;
-            Response.pageSize = pageSize;
+          
             Response.data = await data.Select(c => new ListUsersOutPut()
             {
                 NationalId = c.NationalId,

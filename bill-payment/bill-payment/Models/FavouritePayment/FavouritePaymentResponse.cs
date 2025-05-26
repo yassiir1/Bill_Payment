@@ -4,6 +4,8 @@
     {
         public string Message { get; set; }
         public List<FavouritePaymentOutput> data { get; set; }
+        public PaginationClass pagination { get; set; }
+
 
     }
 }

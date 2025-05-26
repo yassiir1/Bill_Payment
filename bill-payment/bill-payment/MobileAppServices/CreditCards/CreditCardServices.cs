@@ -4,6 +4,9 @@ using bill_payment.Domains;
 using Microsoft.EntityFrameworkCore;
 using bill_payment.Models.Users;
 using bill_payment.Models.FavouritePayment;
+using bill_payment.Models;
+using Azure;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 
 namespace bill_payment.MobileAppServices.CreditCards
@@ -67,31 +70,38 @@ namespace bill_payment.MobileAppServices.CreditCards
             return "Card Successfully Deleted!";
         }
 
-        public async Task<CreditCardResponse> ListCreditCards()
+        public async Task<CreditCardResponse> ListCreditCards(PaginatoinClass filter)
         {
+            var Response = new CreditCardResponse();
             var UserInfo = GetUserInfos();
-            if (UserInfo == null || UserInfo.UserId == null /*|| UserInfo.SessionId == null || UserInfo.Skey == null*/)
+            if (UserInfo == null || UserInfo.UserId == null)
                 throw new Exception("There is No User To Add Credit Card, Make sure Of Your Credentials");
             var user = await _billContext.Users.Where(c => c.GiedeaUser_id == UserInfo.UserId).FirstOrDefaultAsync();
-            //if (UserInfo.SessionId != user.session_id || UserInfo.Skey != user.skey)
-            //    throw new Exception("Login TimeOut, Please ReLogin then try again!");
-            var cards = await _billContext.CreditCards.Where(c=> c.UserId == user.UserId).ToListAsync();
-            return new CreditCardResponse()
-            {
-                Message = "Cards Successfully loaded!",
-                data = cards.Select(c => new CreditCardOutput()
-                {
-                    cvv = c.cvv,
-                    holder_name = c.holder_name,
-                    last_4_digit = c.last_4_digit,
-                    month = c.month,
-                    token_id = c.token_id,
-                    type = c.type,
-                    year = c.year,
-                    Id = c.Id
+         
 
-                }).ToList()
+            var cards = await _billContext.CreditCards.Where(c=> c.UserId == user.UserId).ToListAsync();
+            Response.pagination = new PaginationClass()
+            {
+                total_records = cards.Count,
+                total_pages = (int)Math.Ceiling((double)cards.Count / filter.pageSize),
+                page = filter.page,
+                pageSize = filter.pageSize
             };
+            cards = cards.Skip((filter.page - 1) * filter.pageSize).Take(filter.pageSize).ToList();
+            Response.Message = "Cards Successfully loaded!";
+            Response.data = cards.Select(c => new CreditCardOutput()
+            {
+                cvv = c.cvv,
+                holder_name = c.holder_name,
+                last_4_digit = c.last_4_digit,
+                month = c.month,
+                token_id = c.token_id,
+                type = c.type,
+                year = c.year,
+                Id = c.Id
+
+            }).ToList();
+            return Response;
         }
         private UserInfos GetUserInfos()
         {

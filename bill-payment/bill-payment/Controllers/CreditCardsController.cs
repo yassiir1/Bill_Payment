@@ -1,4 +1,5 @@
 ﻿using bill_payment.MobileAppServices.CreditCards;
+using bill_payment.Models;
 using bill_payment.Models.CreditCards;
 using bill_payment.Models.FavouritePayment;
 using Microsoft.AspNetCore.Http;
@@ -29,9 +30,9 @@ namespace bill_payment.Controllers
             return Ok(new { Message = Response });
         }
         [HttpGet]
-        public async Task<IActionResult> ListCreditCards()
+        public async Task<IActionResult> ListCreditCards([FromQuery] PaginatoinClass filter)
         {
-            var Response = await _creditCardsServices.ListCreditCards();
+            var Response = await _creditCardsServices.ListCreditCards(filter);
             return Ok(Response);
         }
     }

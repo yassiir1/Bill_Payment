@@ -5,5 +5,7 @@ namespace bill_payment.Models.CreditCards
     {
         public string Message { get; set; }
         public List<CreditCardOutput> data { get; set; }
+        public PaginationClass pagination { get; set; }
+
     }
 }

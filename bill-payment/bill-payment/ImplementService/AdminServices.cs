@@ -142,10 +142,19 @@ namespace bill_payment.ImplementService
             return Response;
         }
 
-        public async Task<AdminOutPut> GetAllAdmins()
+        public async Task<AdminOutPut> GetAllAdmins(PaginatoinClass filter)
         {
             var Response = new AdminOutPut();
             var data = await _billContext.Admins.ToListAsync();
+            Response.pagination = new PaginationClass()
+            {
+                total_records = data.Count,
+                total_pages = (int)Math.Ceiling((double)data.Count / filter.pageSize),
+                page = filter.page,
+                pageSize = filter.pageSize
+            };
+            data = data.Skip((filter.page - 1) * filter.pageSize).Take(filter.pageSize).ToList();
+
             Response.StatusCode = 200;
             Response.Message = "Admin Returns Successfully";
             Response.data = data.Select(c=> new AdminDto

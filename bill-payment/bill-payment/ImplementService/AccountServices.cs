@@ -7,7 +7,7 @@ namespace bill_payment.ImplementService
     {
         private static readonly HttpClient _client = new HttpClient();
         private string BaseUrl = "http://localhost:8080";
-        //private string BaseUrl = "http://127.0.0.1:8280";
+        //private string BaseUrl = "http://34.60.128.179:8080";
 
         public async Task<LoginResponse> LoginAsync(LoginInput data)
         {

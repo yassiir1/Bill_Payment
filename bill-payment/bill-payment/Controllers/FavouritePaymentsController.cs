@@ -1,4 +1,5 @@
 ﻿using bill_payment.MobileAppServices.FavouritePayment;
+using bill_payment.Models;
 using bill_payment.Models.Admin;
 using bill_payment.Models.FavouritePayment;
 using Microsoft.AspNetCore.Http;
@@ -30,9 +31,9 @@ namespace bill_payment.Controllers
             return Ok(new {Message = Response});
         }
         [HttpGet]
-        public async Task<IActionResult> GetFavourites()
+        public async Task<IActionResult> GetFavourites([FromQuery] PaginatoinClass filter)
         {
-            var Response = await _favouritePaymentServices.GetFavouritePayment();
+            var Response = await _favouritePaymentServices.GetFavouritePayment(filter);
             return Ok(Response);
         }
     }
