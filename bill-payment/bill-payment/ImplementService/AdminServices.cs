@@ -19,8 +19,8 @@ namespace bill_payment.ImplementService
     {
         private readonly HttpClient _client;
         private readonly Bill_PaymentContext _billContext;
-        private string BaseUrl = "http://localhost:8080";
-        //private string BaseUrl = "http://127.0.0.1:8280/";
+        //private string BaseUrl = "http://localhost:8080";
+        private string BaseUrl = "http://34.60.128.179:8080";
 
         public AdminServices(HttpClient client, Bill_PaymentContext billContext)
         {

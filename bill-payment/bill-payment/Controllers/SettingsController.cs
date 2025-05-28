@@ -42,5 +42,17 @@ namespace bill_payment.Controllers
             var Response = await _settingsServices.AddBanner(data);
             return Ok(Response);
         }
+        [HttpPut("EditBanner/{id}")]
+        public async Task<IActionResult> EditBanner(int id,[FromForm] AddBanner data)
+        {
+            var Response = await _settingsServices.EditBanner(id, data);
+            return Ok(Response);
+        }
+        [HttpDelete("DeleteBanner/{id}")]
+        public async Task<IActionResult> DeleteBanner(int id)
+        {
+            var Response = await _settingsServices.DeleteBanner(id);
+            return Ok(Response);
+        }
     }
 }

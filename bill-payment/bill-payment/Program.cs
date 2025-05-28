@@ -37,8 +37,8 @@ builder.Services.AddAuthentication(options =>
 })
 .AddJwtBearer(options =>
 {
-    options.Authority = "http://localhost:8080/auth/realms/bill-payment-sdk";
-    //options.Authority = "http://127.0.0.1:8280/auth/realms/bill-payment-sdk";
+    //options.Authority = "http://localhost:8080/auth/realms/bill-payment-sdk";
+    options.Authority = "http://34.60.128.179:8080/auth/realms/bill-payment-sdk";
     options.Audience = "account";
     options.RequireHttpsMetadata = false; 
 
@@ -49,8 +49,8 @@ builder.Services.AddAuthentication(options =>
         ValidateAudience = true,
         ValidateLifetime = true,
         ValidateIssuerSigningKey = true,
-        ValidIssuer = "http://localhost:8080/auth/realms/bill-payment-sdk",
-        //ValidIssuer = "http://127.0.0.1:8280/auth/realms/bill-payment-sdk",
+        //ValidIssuer = "http://localhost:8080/auth/realms/bill-payment-sdk",
+        ValidIssuer = "http://34.60.128.179:8080/auth/realms/bill-payment-sdk",
         ValidAudience = "account",
         RoleClaimType = ClaimTypes.Role
     };
